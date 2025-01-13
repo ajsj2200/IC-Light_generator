@@ -96,8 +96,17 @@ class DataGenerator:
         # GPU별로 다른 시드 사용
         gpu_seed = self.seed + (self.gpu_id * 10000)
         
+        # 어노테이션이 있는 이미지 ID 목록 생성
+        image_ids_with_annotations = set(ann['image_id'] for ann in self.coco_data['annotations'])
+        
+        # 어노테이션이 있는 이미지만 필터링
+        images_to_process = [
+            img for img in self.coco_data['images'] 
+            if img['id'] in image_ids_with_annotations
+        ]
+        
         # 각 이미지에 대해 처리
-        for img_info in tqdm(self.coco_data['images'], desc=f"Processing images on GPU {self.gpu_id}"):
+        for img_info in tqdm(images_to_process, desc=f"Processing images on GPU {self.gpu_id}"):
             img_id = img_info['id']
                 
             # 원본 이미지 로드
